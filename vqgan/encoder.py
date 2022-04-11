@@ -1,4 +1,3 @@
-from numpy import append
 import torch
 from util import ResidualBlock
 from util import DownSample
@@ -15,7 +14,7 @@ from util import Swish
 class Encoder(torch.nn.Module):
     def __init__(self, input_channels, latent_space_dim):
         super(Encoder, self).__init__()
-        chanel_dim = [128, 128, 256, 256, 512]
+        chanel_dim = [128, 128, 256, 256, 256]
 
         # initial conv
         layers = [torch.nn.Conv2d(input_channels, chanel_dim[0], 3, 1, 1)]

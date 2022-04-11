@@ -5,6 +5,33 @@ import glob
 import os
 import PIL.Image as Image
 from matplotlib import pyplot as plt
+import torchvision
+
+'''
+    Perceptual Loss
+'''
+class PerceptualLoss(torch.nn.Module):
+    def __init__(self):
+        super(PerceptualLoss, self).__init__()
+        # load pre-trained vgg16
+        model = torchvision.models.vgg16(pretrained=True).features.eval()
+        self.blocks = [model[:4], model[:9], model[:16], model[:23]]
+
+        # normalization param
+        self.mean = torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1)
+        self.std = torch.tensor([0.229, 0.224, 0.225]).view(1, 3, 1, 1)
+
+    def forward(self, real, fake):
+        # normalize images
+        real = (real - self.mean) / self.std
+        fake = (fake - self.mean) / self.std
+
+        loss = 0
+
+        for block in self.blocks:
+            loss += torch.nn.MSELoss()(block(real), block(fake))
+
+        return loss
 
 '''
     Custom Data Loader
@@ -32,7 +59,7 @@ def get_data_loader(data_path, opts):
     """Creates training and test data loaders.
     """
     basic_transform = transforms.Compose([
-        transforms.Resize((268, 182), Image.BICUBIC),
+        transforms.Resize((256, 176), Image.BICUBIC),
         transforms.ToTensor()
     ])
 

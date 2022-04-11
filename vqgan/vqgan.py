@@ -1,5 +1,3 @@
-from encodings.utf_8 import encode
-from turtle import forward
 import torch
 from encoder import Encoder
 from decoder import Decoder
@@ -10,7 +8,7 @@ class VQGAN(torch.nn.Module):
         super(VQGAN, self).__init__()
         self.encoder = Encoder(args.input_channels, args.latent_space_dim)
         self.decoder = Decoder(args.input_channels, args.latent_space_dim)
-        self.codebook - CodeBook(args.num_vectors, args.latent_space_dim)
+        self.codebook = CodeBook(args.num_vectors, args.latent_space_dim, args.beta)
 
         self.enc_conv = torch.nn.Conv2d(args.latent_space_dim, args.latent_space_dim, 1)
         self.code_conv = torch.nn.Conv2d(args.latent_space_dim, args.latent_space_dim, 1)

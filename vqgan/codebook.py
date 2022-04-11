@@ -18,9 +18,7 @@ class CodeBook(torch.nn.Module):
         z = z.view(-1, self.latent_space_dim)
 
         # distances to codebook vectos
-        d = torch.sum(z**2, dim=1, keepdim=True)
-        d += torch.sum(self.book.weight**2, dim = 1)
-        d -= 2*torch.sum(torch.matmul(z, self.book.weight.t()))
+        d = torch.cdist(z, self.book.weight)
 
         # find closest vecs
         idx = torch.argmin(d, dim=1)
@@ -28,7 +26,5 @@ class CodeBook(torch.nn.Module):
 
         # loss
         loss = torch.mean((z_q.detach() - input)**2) + self.beta * torch.mean((z_q - input.detach())**2)
-
-        z_q = z_q.permute(0, 3, 1, 2)
 
         return z_q, idx, loss
