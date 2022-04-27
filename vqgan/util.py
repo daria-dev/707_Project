@@ -15,7 +15,8 @@ class PerceptualLoss(torch.nn.Module):
         super(PerceptualLoss, self).__init__()
         # load pre-trained vgg16
         model = torchvision.models.vgg16(pretrained=True).features.eval()
-        self.blocks = [model[:4], model[:9], model[:16], model[:23]]
+        #self.blocks = [model[:4], model[:9], model[:16], model[:23]]
+        self.blocks = [model[:4]]
 
         # normalization param
         self.mean = torch.tensor([0.485, 0.456, 0.406]).view(1, 3, 1, 1)
@@ -58,8 +59,9 @@ class CustomDataSet(Dataset):
 def get_data_loader(data_path, opts):
     """Creates training and test data loaders.
     """
+    # transforms.Resize((256, 160), Image.BICUBIC),
     basic_transform = transforms.Compose([
-        transforms.Resize((256, 176), Image.BICUBIC),
+        transforms.Resize((256, 256), Image.BICUBIC),
         transforms.ToTensor()
     ])
 
@@ -87,14 +89,46 @@ def get_data_loader(data_path, opts):
 '''
 unloader = transforms.ToPILImage()  # reconvert into PIL image
 
-def imshow(tensor, title=None):
-    image = tensor.cpu().clone()  # we clone the tensor to not do changes on it
-    image = image.squeeze(0)      # remove the fake batch dimension
-    image = unloader(image)
-    plt.imshow(image)
-    if title is not None:
-        plt.title(title)
+def imshow(tensor1, tensor2):
+    image1 = tensor1.cpu().clone()  # we clone the tensor to not do changes on it
+    image1 = image1.squeeze(0)      # remove the fake batch dimension
+    image1 = unloader(image1)
+
+    image2 = tensor2.cpu().clone()
+    image2 = image2.squeeze(0)
+    image2 = unloader(image2)
+
+    f, axarr = plt.subplots(1,2)
+    axarr[0].imshow(image1)
+    axarr[1].imshow(image2)
+    
     plt.pause(0.001)  # pause a bit so that plots are updated
+
+def savefig(tensor1, tensor2, iter):
+    image1 = tensor1.cpu().clone()  # we clone the tensor to not do changes on it
+    image1 = image1.squeeze(0)      # remove the fake batch dimension
+    image1 = unloader(image1)
+
+    image2 = tensor2.cpu().clone()
+    image2 = image2.squeeze(0)
+    image2 = unloader(image2)
+
+    f, axarr = plt.subplots(1,2)
+    axarr[0].imshow(image1)
+    axarr[1].imshow(image2)
+
+    f.savefig('reconst_' + str(iter) + '.jpg')
+
+def savefig_1(tensor1, filename):
+    image1 = tensor1.cpu().clone()  # we clone the tensor to not do changes on it
+    image1 = image1.squeeze(0)      # remove the fake batch dimension
+    image1 = unloader(image1)
+
+    f, axarr = plt.subplots(1,2)
+    axarr[0].imshow(image1)
+    axarr[1].imshow(image1)
+
+    f.savefig(filename + '.jpg')
 
 '''
     Swish layer
